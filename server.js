@@ -5,6 +5,9 @@ var bodyParser = require("body-parser");
 var expect = require("chai").expect;
 var cors = require("cors");
 var dotenv = require("dotenv");
+var helmet = require("helmet");
+var mongodb = require("mongodb");
+var mongoose = require("mongoose");
 
 var apiRoutes = require("./routes/api.js");
 var fccTestingRoutes = require("./routes/fcctesting.js");
@@ -12,7 +15,23 @@ var runner = require("./test-runner");
 
 dotenv.config({ path: "./.env" });
 var app = express();
+var DB = process.env.DATABASE_KEY.replace(
+  "<password>",
+  process.env.DATABASE_PASSWORD
+);
+mongoose
+  .connect(DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log("DB connection successful!");
+  })
+  .catch((err) => console.log(err));
 
+app.use(helmet());
 app.use("/public", express.static(process.cwd() + "/public"));
 
 app.use(cors({ origin: "*" })); //For FCC testing purposes only
