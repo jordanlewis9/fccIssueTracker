@@ -9,3 +9,25 @@ exports.createIssue = async (req, res, next) => {
     }
   });
 };
+
+exports.updateIssue = async (req, res, next) => {
+  try {
+    if (Object.keys(req.body).length <= 1) {
+      res.status(400).json({
+        failed: "no updated field sent"
+      });
+    }
+    const updatedIssue = await Issue.findByIdAndUpdate(req.body._id, req.body);
+    res.status(200).json({
+      success: `successfully updated ${req.body._id}`,
+      data: {
+        data: updatedIssue
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      failed: `could not update ${req.body._id}`
+    });
+  }
+};

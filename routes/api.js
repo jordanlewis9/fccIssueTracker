@@ -34,9 +34,7 @@ module.exports = function(app) {
 
     .post(issueController.createIssue)
 
-    .put(function(req, res) {
-      var project = req.params.project;
-    })
+    .put(issueController.updateIssue)
 
     .delete(function(req, res) {
       var project = req.params.project;

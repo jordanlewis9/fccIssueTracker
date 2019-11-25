@@ -27,6 +27,12 @@ issueSchema.pre("save", function(next) {
   next();
 });
 
+issueSchema.pre("findOneAndUpdate", function(next) {
+  console.log("updated_on");
+  this.set({ updated_on: Date.now() });
+  next();
+});
+
 var Issue = mongoose.model("Issue", issueSchema);
 
 module.exports = Issue;
