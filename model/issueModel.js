@@ -20,6 +20,7 @@ var issueSchema = mongoose.Schema({
   open: Boolean
 });
 
+//places timestamps on the time keeping options, and true on the open status
 issueSchema.pre("save", function(next) {
   this.created_on = Date.now();
   this.updated_on = Date.now();
@@ -27,6 +28,7 @@ issueSchema.pre("save", function(next) {
   next();
 });
 
+//update the updated_on field before the findOneAndUpdate query runs
 issueSchema.pre("findOneAndUpdate", function(next) {
   console.log("updated_on");
   this.set({ updated_on: Date.now() });

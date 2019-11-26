@@ -20,23 +20,11 @@ module.exports = function(app) {
   app
     .route("/api/issues/:project")
 
-    .get(function(req, res) {
-      var project = req.params.project;
-      var body = req;
-      console.log(body);
-      res.status(200).json({
-        status: "success",
-        data: {
-          project
-        }
-      });
-    })
+    .get(issueController.getIssue)
 
     .post(issueController.createIssue)
 
     .put(issueController.updateIssue)
 
-    .delete(function(req, res) {
-      var project = req.params.project;
-    });
+    .delete(issueController.deleteIssue);
 };
