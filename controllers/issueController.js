@@ -3,7 +3,6 @@ var Issue = require("./../model/issueModel");
 exports.createIssue = async (req, res, next) => {
   try {
     const newIssue = await Issue.create(req.body);
-    // testing not working
     res.status(200).json({
       status: "success",
       data: {
@@ -11,6 +10,7 @@ exports.createIssue = async (req, res, next) => {
       }
     });
   } catch (err) {
+    console.log(err.name);
     res.status(400).json({
       message: err.name
     });

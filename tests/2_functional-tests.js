@@ -28,14 +28,17 @@ suite("Functional Tests", function() {
         })
         .end(function(err, res) {
           assert.equal(res.status, 200);
-          assert.equal(res.data.issue.issue_title, "Title");
-          assert.equal(res.data.issue.issue_text, "text");
+          assert.equal(res.body.data.issue.issue_title, "Title");
+          assert.equal(res.body.data.issue.issue_text, "text");
           assert.equal(
-            res.data.issue.created_by,
+            res.body.data.issue.created_by,
             "Functional Test - Every field filled in"
           );
-          assert.equal(res.data.issue.assigned_to, "Chai and Mocha");
-          assert.equal(res.data.issue.status_text, "In QA");
+          assert.equal(res.body.data.issue.assigned_to, "Chai and Mocha");
+          assert.equal(res.body.data.issue.status_text, "In QA");
+          assert.isDefined(res.body.data.issue.created_on);
+          assert.isDefined(res.body.data.issue.updated_on);
+          assert.isDefined(res.body.data.issue.open);
           //fill me in too!
 
           done();
@@ -53,10 +56,10 @@ suite("Functional Tests", function() {
         })
         .end(function(err, res) {
           assert.equal(res.status, 200);
-          assert.equal(res.data.issue.issue_title, "Title");
-          assert.equal(res.data.issue.issue_text, "text");
+          assert.equal(res.body.data.issue.issue_title, "Title");
+          assert.equal(res.body.data.issue.issue_text, "text");
           assert.equal(
-            res.data.issue.created_by,
+            res.body.data.issue.created_by,
             "Functional Test - Every field filled in"
           );
           done();
@@ -68,21 +71,70 @@ suite("Functional Tests", function() {
         .request(server)
         .post("/api/issues/test")
         .send({
-          assigned_to: " Joe"
+          assigned_to: "Joe"
         })
         .end(function(err, res) {
           assert.equal(res.status, 400);
-          assert.equal(res.data.message, "ValidationError");
+          assert.equal(res.body.message, "ValidationError");
+          done();
         });
     });
   });
 
   suite("PUT /api/issues/{project} => text", function() {
-    test("No body", function(done) {});
+    test("No body", function(done) {
+      chai
+        .request(server)
+        .put("/api/issues/test")
+        .send({})
+        .end(function(err, res) {
+          assert.equal(res.status, 400);
+          assert.equal(res.body.failed, "no updated field sent");
+          done();
+        });
+    });
 
-    test("One field to update", function(done) {});
+    test("One field to update", function(done) {
+      chai
+        .request(server)
+        .put("/api/issues/test")
+        .send({
+          _id: "5ddc8b204f9d654bf8b7da88",
+          issue_title: "Things"
+        })
+        .end(function(err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(
+            res.body.success,
+            "successfully updated 5ddc8b204f9d654bf8b7da88"
+          );
+          assert.equal(res.body.data.data.issue_title, "Things");
+          done();
+        });
+    });
 
-    test("Multiple fields to update", function(done) {});
+    test("Multiple fields to update", function(done) {
+      chai
+        .request(server)
+        .put("/api/issues/test")
+        .send({
+          _id: "5ddc8b4c7e2a0e194c28e137",
+          issue_title: "Forks",
+          issue_text: "Spoons",
+          created_by: "Howard"
+        })
+        .end(function(err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(
+            res.body.success,
+            "successfully updated 5ddc8b4c7e2a0e194c28e137"
+          );
+          assert.equal(res.body.data.data.issue_title, "Forks");
+          assert.equal(res.body.data.data.issue_text, "Spoons");
+          assert.equal(res.body.data.data.created_by, "Howard");
+          done();
+        });
+    });
   });
 
   suite(
