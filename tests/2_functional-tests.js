@@ -99,14 +99,14 @@ suite("Functional Tests", function() {
         .request(server)
         .put("/api/issues/test")
         .send({
-          _id: "5ddc8b204f9d654bf8b7da88",
+          _id: "5ddc8b7e9cb4353fe0e8cf45",
           issue_title: "Things"
         })
         .end(function(err, res) {
           assert.equal(res.status, 200);
           assert.equal(
             res.body.success,
-            "successfully updated 5ddc8b204f9d654bf8b7da88"
+            "successfully updated 5ddc8b7e9cb4353fe0e8cf45"
           );
           assert.equal(res.body.data.data.issue_title, "Things");
           done();
@@ -147,29 +147,104 @@ suite("Functional Tests", function() {
           .query({})
           .end(function(err, res) {
             assert.equal(res.status, 200);
-            assert.isArray(res.body);
-            assert.property(res.body[0], "issue_title");
-            assert.property(res.body[0], "issue_text");
-            assert.property(res.body[0], "created_on");
-            assert.property(res.body[0], "updated_on");
-            assert.property(res.body[0], "created_by");
-            assert.property(res.body[0], "assigned_to");
-            assert.property(res.body[0], "open");
-            assert.property(res.body[0], "status_text");
-            assert.property(res.body[0], "_id");
+            assert.isArray(res.body.allIssues);
+            assert.property(res.body.allIssues[0], "issue_title");
+            assert.property(res.body.allIssues[0], "issue_text");
+            assert.property(res.body.allIssues[0], "created_on");
+            assert.property(res.body.allIssues[0], "updated_on");
+            assert.property(res.body.allIssues[0], "created_by");
+            assert.property(res.body.allIssues[0], "assigned_to");
+            assert.property(res.body.allIssues[0], "open");
+            assert.property(res.body.allIssues[0], "status_text");
+            assert.property(res.body.allIssues[0], "_id");
             done();
           });
       });
 
-      test("One filter", function(done) {});
+      test("One filter", function(done) {
+        chai
+          .request(server)
+          .get("/api/issues/test")
+          .query({ created_by: "Jordan" })
+          .end(function(err, res) {
+            console.log(res.body.filteredIssues);
+            assert.equal(res.status, 200);
+            assert.isArray(res.body.filteredIssues);
+            assert.equal(
+              res.body.filteredIssues[0]._id,
+              "5dd9eb1eb1c89849b8f351b5"
+            );
+            assert.equal(res.body.filteredIssues[0].issue_title, "Test");
+            assert.equal(
+              res.body.filteredIssues[0].issue_text,
+              "This is a test"
+            );
+            assert.equal(res.body.filteredIssues[0].created_by, "Jordan");
+            assert.equal(res.body.filteredIssues[0].open, true);
+            assert.equal(
+              res.body.filteredIssues[0].status_text,
+              "Still in progress"
+            );
+            assert.property(res.body.filteredIssues[0], "created_on");
+            assert.property(res.body.filteredIssues[0], "updated_on");
+            done();
+          });
+      });
 
-      test("Multiple filters (test for multiple fields you know will be in the db for a return)", function(done) {});
+      test("Multiple filters (test for multiple fields you know will be in the db for a return)", function(done) {
+        chai
+          .request(server)
+          .get("/api/issues/test")
+          .query({ created_by: "Jordan", issue_title: "Test", open: true })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isArray(res.body.filteredIssues);
+            assert.equal(
+              res.body.filteredIssues[0]._id,
+              "5dd9eb1eb1c89849b8f351b5"
+            );
+            assert.equal(res.body.filteredIssues[0].issue_title, "Test");
+            assert.equal(
+              res.body.filteredIssues[0].issue_text,
+              "This is a test"
+            );
+            assert.equal(res.body.filteredIssues[0].created_by, "Jordan");
+            assert.equal(res.body.filteredIssues[0].open, true);
+            assert.equal(
+              res.body.filteredIssues[0].status_text,
+              "Still in progress"
+            );
+            assert.property(res.body.filteredIssues[0], "created_on");
+            assert.property(res.body.filteredIssues[0], "updated_on");
+            done();
+          });
+      });
     }
   );
 
   suite("DELETE /api/issues/{project} => text", function() {
-    test("No _id", function(done) {});
+    test("No _id", function(done) {
+      chai
+        .request(server)
+        .delete("/api/issues/test")
+        .send({})
+        .end(function(err, res) {
+          assert.equal(res.status, 400);
+          assert.equal(res.body.failed, "_id error");
+          done();
+        });
+    });
 
-    test("Valid _id", function(done) {});
+    test("Valid _id", function(done) {
+      chai
+        .request(server)
+        .delete("/api/issues/test")
+        .send({ _id: "5ddfcd9428edd62b8c48edf3" })
+        .end(function(err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(res.body.success, "deleted 5ddfcd9428edd62b8c48edf3");
+          done();
+        });
+    });
   });
 });
